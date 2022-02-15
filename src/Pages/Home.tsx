@@ -7,6 +7,10 @@ import GooglePlacesAutocomplete, { geocodeByPlaceId } from 'react-google-places-
 import CustomRadio from '../Components/CustomRadio';
 import Dropdown, { DropdownLabel } from '../Components/Dropdown';
 import Steps, { Step } from '../Components/Steps';
+import { createEstimate } from '../lib/db';
+
+
+
 var axios = require("axios").default;
 
 
@@ -65,6 +69,7 @@ const Home = () => {
     const [error, setError] = useState<any>('');
     const [totalPercent, setTotalPercent] = useState(0);
     const [phoneNumber, setPhoneNumber] = useState();
+    const [isEstimatedSent, setIsEstimatedSent] = useState(false);
 
     const { lat, lng, code } = value;
 
@@ -260,8 +265,19 @@ const Home = () => {
         setTotalPercent(totalPercent + val)
     };
 
-    console.log({ lat, lng })
 
+    useEffect(() => {
+
+        if (isEstimatedSent) {
+
+            setTimeout(() => {
+
+                setStep(step + 1);
+                updateData();
+            }, 1500)
+        }
+
+    }, [isEstimatedSent])
     return (
 
         <Flex height={'100vh'} alignItems={'center'} justifyContent={'center'}>
@@ -551,9 +567,8 @@ const Home = () => {
                                     {/*     <Input value={number} onChange={(e) => updateUserCredentials('number', e.currentTarget.value)} sx={inputStyle} /> */}
                                 </Box>
                                 <Flex mt={'10px'} alignItems={'center'} justifyContent={'flex-end'}>
-                                    <Button fontSize={'15px'} padding={'24px 20px'} bg={'#15CBCB'} color={'white'} borderRadius={'12px'} onClick={() => {
-                                        setStep(step + 1);
-                                        updateData()
+                                    <Button isLoading={isEstimatedSent} fontSize={'15px'} padding={'24px 20px'} bg={'#15CBCB'} color={'white'} borderRadius={'12px'} onClick={() => {
+                                        createEstimate({ ...userCredentials, number: phoneNumber }, (val) => setIsEstimatedSent(val))
                                     }}>
                                         Estimate
                                     </Button>
